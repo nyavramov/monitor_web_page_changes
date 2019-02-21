@@ -10,6 +10,7 @@ from io import StringIO
 from random import randint
 import time
 import os
+import platform
 import imagehash
 import base64
 import datetime
@@ -185,6 +186,15 @@ class Change_Monitor:
         new_screenshot = driver.screenshot_page()
         monitor.send_change_alert(url, old_screenshot, new_screenshot)
 
+def getDependencyName():
+    if (platform.system() == "Windows"):
+        name = "chromedriver_windows.exe"
+    elif (platform.system() == 'Linux'):
+        name = "chromedriver_linux"
+    else:
+        name = "chromedriver_mac"
+    return name
+
 def main():
 
     email = ""
@@ -193,7 +203,8 @@ def main():
     dummy_url = "" # Optional: Only needed for simulate_change function
     
     directory_this_script = os.path.dirname(os.path.realpath(__file__)) # Get location of where this file is located
-    chrome_driver_location = os.path.join(directory_this_script, "chromedriver") # Assume chromedriver is in same directory
+    chrome_driver_name = getDependencyName()
+    chrome_driver_location = os.path.join(directory_this_script, "bin", chrome_driver_name) # Assume chromedriver is in same directory
     
     driver = Chrome_Driver(chrome_driver_location)
     email_client = Email_Client(email, password)
@@ -206,3 +217,4 @@ def main():
     
 if __name__ == '__main__':
     main()
+
