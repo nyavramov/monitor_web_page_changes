@@ -162,8 +162,7 @@ class Change_Monitor:
             else:
                 new_screenshot = self.driver.screenshot_page()
                 percent_different = self.get_hash_difference_percent(old_screenshot, new_screenshot)
-                old_screenshot = new_screenshot
-
+                
                 current_time = datetime.datetime.now()
                 current_time = current_time.strftime("%I:%M:%S %p")
 
@@ -172,6 +171,8 @@ class Change_Monitor:
                     print(f"\nChange detected at {current_time}!\n")
                 else:
                     print(f"No change detected at {current_time}.")
+
+                old_screenshot = new_screenshot
             
             # Not sure if necessary, but randomize our check interval so we don't look too suspicious
             minimum_sleep = int(check_interval * 0.7)
