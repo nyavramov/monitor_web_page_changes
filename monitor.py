@@ -167,7 +167,7 @@ class Change_Monitor:
                 current_time = datetime.datetime.now()
                 current_time = current_time.strftime("%I:%M:%S %p")
 
-                if percent_different != 0:
+                if percent_different > 1:
                     self.send_change_alert(url, old_screenshot, new_screenshot)
                     print(f"\nChange detected at {current_time}!\n")
                 else:
