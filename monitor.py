@@ -217,7 +217,7 @@ def main():
     
     pool = Pool(len(urls_to_monitor))
 
-    for url, check_interval, scroll_percent in urls_to_monitor:
+    for url in urls_to_monitor:
         driver = Chrome_Driver(chrome_driver_location)
         email_client = Email_Client(email, password)
         monitor = Change_Monitor(driver, email_client)
