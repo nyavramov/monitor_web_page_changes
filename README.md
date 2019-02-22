@@ -6,7 +6,7 @@ Web pages change all the time, so why not use some python to monitor web pages y
 
 It's a python program that monitors a web page and e-mails you when a change on that page is detected.
 
-## How does it work
+## How does it work?
 
 It uses selenium to open a web page, screen shot it, and then screenshot it again later to check for changes. This happens repeatedly. Changes are detected using perceptual hash differences between two screenshots (the old screenshot and the new screenshot). 
 
