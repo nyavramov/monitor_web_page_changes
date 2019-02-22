@@ -13,7 +13,7 @@ It uses selenium to open a web page, screen shot it, and then screenshot it agai
 
 ## Why perceptual hashes?
 
-I initially thought that scraping might be a good way to look for changes, but it's just too much work writing a new DOM scraper every time you want to monitor a new site.  
+I initially thought that scraping the DOM might be a good way to look for changes, but it's just too much work writing a new DOM scraper every time you want to monitor a new site.  
 
 ## How do I use it?
 
