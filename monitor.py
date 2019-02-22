@@ -206,8 +206,7 @@ def main():
     email = ""
     password = ""
 
-    urls_to_monitor = [("https://www.google.com/", 120, 0), 
-                       ("https://en.wikipedia.org/wiki/Python_(programming_language)",120, 0)]
+    urls_to_monitor = [("https://www.google.com/", 120, 0)]
     
     dummy_url = "https://www.reddit.com/" # Optional: Only needed for simulate_change function
     
