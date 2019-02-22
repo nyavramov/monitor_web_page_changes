@@ -1,4 +1,11 @@
-import smtplib, ssl
+import smtplib
+import ssl
+import time
+import os
+import platform
+import imagehash
+import base64
+import datetime
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -6,14 +13,8 @@ from email.mime.text import MIMEText
 from selenium import webdriver
 from PIL import Image
 from io import BytesIO
-from io import StringIO
 from random import randint
-import time
-import os
-import platform
-import imagehash
-import base64
-import datetime
+from multiprocessing.pool import ThreadPool as Pool
 
 HASH_SIZE = 128             # Size of the perceptual hash
 MAX_HASH_DIFFERENCE = 65536 # Maximum possible distance between hashes
@@ -42,21 +43,24 @@ class Email_Client:
 # Set up selenium and use this class to handle screenshots and related browser operations
 class Chrome_Driver:
 
-    def __init__(self, executable_path):
+    def __init__(self, executable_path, data_dir=None):
 
         self.options = webdriver.ChromeOptions()
-        self.options.add_argument('--ignore-certificate-errors')
+        self.options.add_argument("--ignore-certificate-errors")
         self.options.add_argument("--test-type")
         self.options.add_argument("--headless")
         self.driver = webdriver.Chrome(chrome_options=self.options, executable_path=executable_path)
     
     # Open page, scroll or zoom, then couple seconds for page load
     def open_page(self, url, scroll_percent = 0):
-
-        denominator = (100 / scroll_percent)
-        self.driver.get(url)
-        #self.driver.execute_script("document.body.style.zoom='80%'") # May be useful later
-        self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight / {denominator});")
+        if scroll_percent != 0:
+            denominator = (100 / scroll_percent)
+            self.driver.get(url)
+            #self.driver.execute_script("document.body.style.zoom='80%'") # May be useful later
+            self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight / {denominator});")
+        else:
+            self.driver.get(url)
+        
         time.sleep(2)
 
     # When we're done, just close driver
@@ -69,7 +73,7 @@ class Chrome_Driver:
 
         page_screenshot = self.driver.get_screenshot_as_png()
         page_screenshot = Image.open(BytesIO(page_screenshot))
-
+        
         return page_screenshot
 
     # Display a screenshot of page locally for testing purposes
@@ -148,8 +152,8 @@ class Change_Monitor:
     # Use this to continually monitor a given URL for visual changes
     # Takes a URL, an interval for checking page, and a scroll value for how far 
     # down we'd like to screenshot
-    def check_page_for_changes(self, url, check_interval=60, scroll_percent=5):
-
+    def check_page_for_changes(self, args):
+        url, check_interval, scroll_percent = args[0], args[1], args[2]
         old_screenshot = None
         new_screenshot = None
 
@@ -162,13 +166,14 @@ class Change_Monitor:
             else:
                 new_screenshot = self.driver.screenshot_page()
                 percent_different = self.get_hash_difference_percent(old_screenshot, new_screenshot)
-                
+
                 current_time = datetime.datetime.now()
                 current_time = current_time.strftime("%I:%M:%S %p")
 
                 if percent_different > 1:
                     self.send_change_alert(url, old_screenshot, new_screenshot)
                     print(f"\nChange detected at {current_time}!\n")
+                    print("The screenshots are different by: ", percent_different)
                 else:
                     print(f"No change detected at {current_time}.")
 
@@ -200,21 +205,26 @@ def main():
 
     email = ""
     password = ""
-    url_to_monitor = ""
-    dummy_url = "" # Optional: Only needed for simulate_change function
+
+    urls_to_monitor = [("https://www.google.com/", 120, 0), 
+                       ("https://en.wikipedia.org/wiki/Python_(programming_language)",120, 0)]
+    
+    dummy_url = "https://www.reddit.com/" # Optional: Only needed for simulate_change function
     
     directory_this_script = os.path.dirname(os.path.realpath(__file__)) # Get location of where this file is located
     chrome_driver_name = getDependencyName()
     chrome_driver_location = os.path.join(directory_this_script, "bin", chrome_driver_name) # Assume chromedriver is in same directory
     
-    driver = Chrome_Driver(chrome_driver_location)
-    email_client = Email_Client(email, password)
-    monitor = Change_Monitor(driver, email_client)
-    
-    monitor.check_page_for_changes(url_to_monitor, check_interval=120, scroll_percent=5)
-    #monitor.simulate_change(url_to_monitor, dummy_url, driver, monitor)
+    pool = Pool(len(urls_to_monitor))
 
-    driver.close()
+    for url, check_interval, scroll_percent in urls_to_monitor:
+        driver = Chrome_Driver(chrome_driver_location)
+        email_client = Email_Client(email, password)
+        monitor = Change_Monitor(driver, email_client)
+        pool.apply_async(monitor.check_page_for_changes, (url,))
+
+    pool.close()
+    pool.join()
     
 if __name__ == '__main__':
     main()
