@@ -49,7 +49,7 @@ class Chrome_Driver:
         self.options.add_argument("--ignore-certificate-errors")
         self.options.add_argument("--test-type")
         self.options.add_argument("--headless")
-        self.driver = webdriver.Chrome(chrome_options=self.options, executable_path=executable_path)
+        self.driver = webdriver.Chrome(options=self.options, executable_path=executable_path)
     
     # Open page, scroll or zoom, then couple seconds for page load
     def open_page(self, url, scroll_percent = 0):
