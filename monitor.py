@@ -106,10 +106,7 @@ class Change_Monitor:
         
         return percent_difference
 
-    # When we finally detect a change, intiate e-mail alert
-    def send_change_alert(self, url, old_screenshot, new_screenshot):
-        
-        message = MIMEMultipart()
+    def prepare_message(self, message, old_screenshot, new_screenshot, url):
 
         # Compose actual message
         message_body = f"Change alert for {url}"
@@ -124,7 +121,13 @@ class Change_Monitor:
         message = self.attach_screenshot(message, new_screenshot, "new_screenshot.png")
         message = self.attach_screenshot(message, old_screenshot, "old_screenshot.png")
 
-        self.client.send_email(self.client.sender_email, message.as_string())
+        return message.as_string()
+
+    # When we finally detect a change, intiate e-mail alert
+    def send_change_alert(self, url, old_screenshot, new_screenshot):
+        
+        message = self.prepare_message(MIMEMultipart(), old_screenshot, new_screenshot, url)
+        self.client.send_email(self.client.sender_email, message)
 
     # Convoluted method of preparing out file as attachment.. fix dis
     def attach_screenshot(self, message, file, filename):
