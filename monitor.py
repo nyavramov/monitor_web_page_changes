@@ -195,7 +195,8 @@ class Change_Monitor:
         new_screenshot = driver.screenshot_page()
         monitor.send_change_alert(url, old_screenshot, new_screenshot)
 
-def getDependencyName():
+def get_dependency_name():
+    
     if (platform.system() == "Windows"):
         name = "chromedriver_windows.exe"
     elif (platform.system() == 'Linux'):
