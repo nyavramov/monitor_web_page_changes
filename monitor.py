@@ -205,17 +205,29 @@ def get_dependency_name():
         name = "chromedriver_mac"
     return name
 
+def get_credentials():
+
+    try:
+        # Try to open a credentials text file right outside of the root directory
+        # Generally not a good idea to have plaintext passwords sitting around but 
+        # I'm using a dummy account so shouldn't be a big deal for now
+        # text file contains a single line formatted as: e-mail,password
+        # Note-to-self: look up best practices for this type of thing
+        credentials = open("../credentials.txt", "r").read().split(",")
+        return credentials[0], credentials[1]
+    except:
+        return "some_email@domain.com", "some_password"
+
 def main():
 
-    email = ""
-    password = ""
+    email, password = get_credentials()
 
-    urls_to_monitor = [("https://www.google.com/", 120, 0)]
+    urls_to_monitor = [("https://www.google.com", 120, 0)]
     
     dummy_url = "https://www.reddit.com/" # Optional: Only needed for simulate_change function
     
     directory_this_script = os.path.dirname(os.path.realpath(__file__)) # Get location of where this file is located
-    chrome_driver_name = getDependencyName()
+    chrome_driver_name = get_dependency_name()
     chrome_driver_location = os.path.join(directory_this_script, "bin", chrome_driver_name) # Assume chromedriver is in same directory
     
     pool = Pool(len(urls_to_monitor))
