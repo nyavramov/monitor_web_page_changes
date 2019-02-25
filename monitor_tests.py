@@ -30,6 +30,7 @@ class Test_Monitor(unittest.TestCase):
         
         self.assertEqual(cat_hash, str(self.monitor.calculate_hash(test_image)))
 
+    # Make sure that the e-mail is being composed properly by matching to known, valid email message structure
     def test_prepare_message(self):
 
         url = "https://www.google.com"
@@ -39,6 +40,7 @@ class Test_Monitor(unittest.TestCase):
 
         prepared_message = self.monitor.prepare_message(MIMEMultipart(), test_image_1, test_image_2, url)
         
+        # Regex to check for valid email header & message body
         pattern = re.compile("Content-Type: multipart/mixed; boundary=\"===============[0-9]*==\"\nMIME-Version:"
             " 1.0\nSubject: .*\nFrom: \".*\"\nTo: \".*\"\n\n--===============[0-9]*==\nContent-Type: text/plain;"
             " charset=\"us-ascii\"\nMIME-Version: 1.0\nContent-Transfer-Encoding: 7bit\n\n.*\n--===============[0-9]"
