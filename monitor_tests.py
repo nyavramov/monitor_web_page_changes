@@ -2,6 +2,7 @@ import unittest, os, warnings
 from monitor import Email_Client, Chrome_Driver, Change_Monitor, get_dependency_name, get_credentials
 from PIL import Image 
 from email.mime.multipart import MIMEMultipart
+import re
 
 class Test_Monitor(unittest.TestCase):
 
@@ -29,6 +30,24 @@ class Test_Monitor(unittest.TestCase):
         
         self.assertEqual(cat_hash, str(self.monitor.calculate_hash(test_image)))
 
+    def test_prepare_message(self):
+
+        url = "https://www.google.com"
+
+        test_image_1 = Image.open("testing/flying_cat.jpg")
+        test_image_2 = Image.open("testing/monorail_cat_test.jpg")
+
+        prepared_message = self.monitor.prepare_message(MIMEMultipart(), test_image_1, test_image_2, url)
+        
+        pattern = re.compile("Content-Type: multipart/mixed; boundary=\"===============[0-9]*==\"\nMIME-Version:"
+            " 1.0\nSubject: .*\nFrom: \".*\"\nTo: \".*\"\n\n--===============[0-9]*==\nContent-Type: text/plain;"
+            " charset=\"us-ascii\"\nMIME-Version: 1.0\nContent-Transfer-Encoding: 7bit\n\n.*\n--===============[0-9]"
+            "*==\nContent-Type: application/octet-stream\nMIME-Version: 1.0\nContent-Transfer-Encoding: base64\nContent"
+            "-Disposition: attachment; filename=new_screenshot.png.*--===============[0-9]*==--", re.IGNORECASE|re.DOTALL)
+
+        self.assertTrue(pattern.match(prepared_message))
+        
+        
 
 if __name__ == '__main__':
     unittest.main()
