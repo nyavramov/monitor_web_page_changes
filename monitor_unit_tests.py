@@ -1,8 +1,8 @@
-import unittest, os, warnings
+import unittest, os, warnings, re
 from monitor import Email_Client, Chrome_Driver, Change_Monitor, get_dependency_name, get_credentials
 from PIL import Image 
 from email.mime.multipart import MIMEMultipart
-import re
+
 
 class Test_Monitor(unittest.TestCase):
 
