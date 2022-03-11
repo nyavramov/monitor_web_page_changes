@@ -1,6 +1,6 @@
 ImageHash==4.0
 numpy==1.16.1
-Pillow==5.4.1
+Pillow==9.0.1
 PyWavelets==1.0.1
 scipy==1.2.1
 selenium==3.141.0
